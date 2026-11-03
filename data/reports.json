@@ -18,5 +18,15 @@
   "lng": 84.253048,
   "photo": "data/photos/mvzyn3l8db6p.jpg",
   "t": 1793666363372
+ },
+ {
+  "id": "mvzyofoupnj8",
+  "category": "other",
+  "address": "Молодежная 10",
+  "description": "Куча мусора",
+  "lat": 49.7153722,
+  "lng": 84.2583699,
+  "photo": "data/photos/mvzyofoupnj8.jpg",
+  "t": 1793666425710
  }
 ]
