@@ -78,5 +78,15 @@
   "lng": 84.2554139,
   "photo": "data/photos/mw07jcqccalx.jpg",
   "t": 1793681305140
+ },
+ {
+  "id": "mw07lnhlp6ex",
+  "category": "dump",
+  "address": "ул.молодежная 17",
+  "description": "переполненные баки с мусором",
+  "lat": 49.7155282,
+  "lng": 84.2561583,
+  "photo": "data/photos/mw07lnhlp6ex.jpg",
+  "t": 1793681412393
  }
 ]
