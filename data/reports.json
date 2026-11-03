@@ -68,5 +68,15 @@
   "lng": 84.2608573,
   "photo": "data/photos/mw07gnieqgw2.jpg",
   "t": 1793681179142
+ },
+ {
+  "id": "mw07jcqccalx",
+  "category": "dump",
+  "address": "ул.тохтарова 4",
+  "description": "большое скопление мусора",
+  "lat": 49.7145493,
+  "lng": 84.2554139,
+  "photo": "data/photos/mw07jcqccalx.jpg",
+  "t": 1793681305140
  }
 ]
