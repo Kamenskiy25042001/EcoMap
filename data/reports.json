@@ -8,5 +8,15 @@
   "lng": 84.2544693,
   "photo": "data/photos/mvzyjyvervng.jpg",
   "t": 1793666217290
+ },
+ {
+  "id": "mvzyn3l8db6p",
+  "category": "waste",
+  "address": "Курчатова 5",
+  "description": "Переполненные баки",
+  "lat": 49.7112248,
+  "lng": 84.253048,
+  "photo": "data/photos/mvzyn3l8db6p.jpg",
+  "t": 1793666363372
  }
 ]
