@@ -148,5 +148,15 @@
   "lng": 84.3001,
   "photo": null,
   "t": 1792281321571
+ },
+ {
+  "id": "mvzyjyvervng",
+  "category": "waste",
+  "address": "Курчатова 3/1",
+  "description": "Переполненные баки",
+  "lat": 49.7116935,
+  "lng": 84.2544693,
+  "photo": "data/photos/mvzyjyvervng.jpg",
+  "t": 1793666217290
  }
 ]
