@@ -88,5 +88,15 @@
   "lng": 84.2561583,
   "photo": "data/photos/mw07lnhlp6ex.jpg",
   "t": 1793681412393
+ },
+ {
+  "id": "mw07o2xok8qi",
+  "category": "dump",
+  "address": "ул.солнечная 11",
+  "description": "переполненные баки",
+  "lat": 49.7131777,
+  "lng": 84.255006,
+  "photo": "data/photos/mw07o2xok8qi.jpg",
+  "t": 1793681525724
  }
 ]
