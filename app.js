@@ -3,7 +3,7 @@
 // REPO определяется сам, если сайт открыт на https://ЛОГИН.github.io/РЕПОЗИТОРИЙ/ .
 // API — адрес вашего Worker (см. README), например: 'https://eco-map.ivan.workers.dev'
 // Для локального запуска впишите REPO вручную, например: 'ivan/eco-map'
-const CFG = { REPO: 'Kamenskiy25042001/EcoMap', BRANCH: 'main', API: 'https://raspy-cell-36cd.kamenskiy2001.workers.dev', HEATING: [10, 11, 12, 1, 2, 3, 4], BASIN: 1.2, WIND: { dir: 315, speed: 3 } };
+const CFG = { REPO: '', BRANCH: 'main', API: '', HEATING: [10, 11, 12, 1, 2, 3, 4], BASIN: 1.2, WIND: { dir: 315, speed: 3 } };
 if (!CFG.REPO && /\.github\.io$/.test(location.hostname)) { const o = location.hostname.split('.')[0], r = location.pathname.split('/')[1]; CFG.REPO = o + '/' + (r || o + '.github.io'); }
 
 const $ = id => document.getElementById(id);
@@ -24,6 +24,14 @@ L.control.layers({ 'Карта улиц (Esri)': street, 'Топографиче
 const G = { ind: L.layerGroup().addTo(map), dom: L.layerGroup().addTo(map), eco: L.layerGroup().addTo(map), risk: L.layerGroup().addTo(map), reports: L.layerGroup().addTo(map) };
 const NB = { bubblingMouseEvents: false };
 function toggleLayer(n) { const m = { industry: 'ind', domestic: 'dom', infrastructure: 'eco', risks: 'risk', reports: 'reports' }; $('layer-' + n).checked ? map.addLayer(G[m[n]]) : map.removeLayer(G[m[n]]); }
+
+// ---------- мобильная боковая панель (шторка) ----------
+function toggleSidebar(force) {
+  const open = force !== undefined ? force : !$('sidebar').classList.contains('open');
+  $('sidebar').classList.toggle('open', open);
+  $('sidebarBackdrop').classList.toggle('open', open);
+}
+map.on('click', () => { if (window.innerWidth < 768) toggleSidebar(false); });
 
 const OBJ = window.OBJECTS || [];
 function renderObjects() {
