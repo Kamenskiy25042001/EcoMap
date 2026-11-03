@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная экологическая карта района Алтай (ВКО)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Leaflet Dark Popup styling */
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .leaflet-popup-content {
+            margin: 12px 16px !important;
+            line-height: 1.5 !important;
+        }
+        .leaflet-container {
+            font-family: 'Inter', sans-serif !important;
+            background-color: #020617 !important;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col overflow-hidden">
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed top-20 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none flex items-center space-x-3 border border-emerald-400/30">
+        <i class="fa-solid fa-circle-check text-lg"></i>
+        <span id="toast-message" class="font-medium text-sm">Сообщение</span>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="h-16 bg-slate-900/90 border-b border-slate-800 backdrop-blur-md px-6 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/30">
+                <i class="fa-solid fa-leaf text-slate-950 text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-wide text-white flex items-center gap-2">
+                    Экологическая карта района Алтай <span class="text-xs font-normal text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-800">ВКО</span>
+                </h1>
+                <p class="text-xs text-slate-400">ГИС-мониторинг, ИИ-моделирование риска и краудсорсинг</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a id="modLink" href="#" target="_blank" rel="noopener" class="text-slate-300 border border-slate-700 hover:bg-slate-800 text-sm px-4 py-2.5 rounded-xl transition">📁 Файлы заявок</a>
+            <button onclick="openReportModal()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/40 flex items-center space-x-2">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Сообщить о загрязнении</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Body -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Sidebar / Layers Control Panel -->
+        <aside class="w-80 sm:w-96 bg-slate-900/95 border-r border-slate-800 flex flex-col z-10 shrink-0 shadow-2xl overflow-y-auto">
+            
+            <!-- Tab Navigation inside Sidebar -->
+            <div class="p-4 border-b border-slate-800">
+                <div class="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">Слои экологической карты</div>
+                
+                <!-- Layer Toggles List -->
+                <div class="space-y-2.5">
+                    
+                    <!-- Layer 1: Industry -->
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 hover:border-amber-500/50 transition cursor-pointer group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                                <i class="fa-solid fa-industry"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-200 group-hover:text-amber-400 transition">1. Промышленные объекты</div>
+                                <div class="text-xs text-slate-400">ГОК «Казцинк», ТЭЦ, хвостохранилище</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="layer-industry" checked onchange="toggleLayer('industry')" class="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 bg-slate-900 border-slate-700">
+                    </label>
+
+                    <!-- Layer 2: Domestic / Heating -->
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 hover:border-orange-500/50 transition cursor-pointer group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center">
+                                <i class="fa-solid fa-house-fire"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-200 group-hover:text-orange-400 transition">2. Бытовые сектора</div>
+                                <div class="text-xs text-slate-400">Частный сектор с печным отоплением</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="layer-domestic" checked onchange="toggleLayer('domestic')" class="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 bg-slate-900 border-slate-700">
+                    </label>
+
+                    <!-- Layer 3: Eco Infrastructure -->
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 hover:border-emerald-500/50 transition cursor-pointer group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                                <i class="fa-solid fa-recycle"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-200 group-hover:text-emerald-400 transition">3. Эко-инфраструктура</div>
+                                <div class="text-xs text-slate-400">Контейнеры сортировки (пластик, бумага)</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="layer-infrastructure" checked onchange="toggleLayer('infrastructure')" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
+                    </label>
+
+                    <!-- Layer 4: AI Risk Zones -->
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 hover:border-rose-500/50 transition cursor-pointer group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-200 group-hover:text-rose-400 transition">4. Зоны экологического риска</div>
+                                <div class="text-xs text-slate-400">Расчет ИИ (Рельеф + Роза ветров)</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="layer-risks" checked onchange="toggleLayer('risks')" class="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 bg-slate-900 border-slate-700">
+                    </label>
+
+                    <!-- Layer 5: User Reports -->
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 hover:border-purple-500/50 transition cursor-pointer group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                <i class="fa-solid fa-users-viewfinder"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-200 group-hover:text-purple-400 transition">5. Сигналы жителей</div>
+                                <div class="text-xs text-slate-400">Обращения с фото и описанием</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="layer-reports" checked onchange="toggleLayer('reports')" class="w-4 h-4 rounded text-purple-500 focus:ring-purple-500 bg-slate-900 border-slate-700">
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- Auto risk box -->
+            <div class="p-4 border-b border-slate-800 bg-slate-950/40">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-sky-400 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-brain"></i> Оценка риска (авто)</span>
+                    <span class="text-[10px] bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded-full">без ввода данных</span>
+                </div>
+                <p class="text-xs text-slate-400 mb-3">Зоны считаются сами по объектам из базы данных, текущему ветру, сезону отопления и одобренным заявкам жителей. <b class="text-slate-300">Кликните по карте</b>, чтобы получить оценку для любой точки.</p>
+                <div class="text-xs text-slate-300 space-y-1">
+                    <div>💨 Ветер: <span id="windInfo" class="text-sky-300">загрузка…</span></div>
+                    <div>🔥 <span id="seasonInfo">…</span></div>
+                </div>
+                <button onclick="load()" class="mt-3 w-full bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/30 text-xs font-semibold py-2.5 px-3 rounded-xl transition">Обновить данные</button>
+            </div>
+
+            <!-- Legend Section -->
+            <div class="p-4">
+                <div class="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">Обозначения на карте</div>
+                <div class="space-y-2 text-xs text-slate-300">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-rose-600/80 border border-rose-400 inline-block"></span>
+                        <span>Высокий экологический риск</span>
+                    </div>
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-amber-500/80 border border-amber-300 inline-block"></span>
+                        <span>Умеренный экологический риск</span>
+                    </div>
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-emerald-500/80 border border-emerald-300 inline-block"></span>
+                        <span>Низкий риск (Эко-зоны)</span>
+                    </div>
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-3.5 h-3.5 rounded-sm bg-orange-500/30 border border-orange-500 border-dashed inline-block"></span>
+                        <span>Частный сектор (Печное отопление)</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Map Container -->
+        <main class="flex-1 relative h-full">
+            <div id="map" class="w-full h-full z-0"></div>
+            <!-- Map Instruction Banner -->
+            <div class="absolute bottom-6 left-6 z-10 bg-slate-900/90 border border-slate-800 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs text-slate-300 shadow-xl pointer-events-none flex items-center space-x-2">
+                <i class="fa-solid fa-mouse-pointer text-emerald-400 animate-bounce"></i>
+                <span>Кликните по карте, чтобы узнать оценку риска в этой точке</span>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Modal Form: Add Pollution Report -->
+    <div id="reportModal" class="fixed inset-0 z-[1100] bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>
+                    <h3 class="font-bold text-slate-100 text-base">Добавить экологический сигнал</h3>
+                </div>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="ecoReportForm" onsubmit="submitReport(event)" class="p-5 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Тип нарушения</label>
+                    <select id="reportType" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="dump">Несанкционированная свалка</option>
+                        <option value="air">Выбросы дыма / Неприятный запах</option>
+                        <option value="water">Загрязнение водоема / Реки</option>
+                        <option value="waste">Загромождение контейнерной площадки</option>
+                        <option value="other">Другая проблема</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Адрес</label>
+                    <div class="flex gap-2">
+                        <input id="reportAddress" required maxlength="200" placeholder="Например: ул. Ленина, 10" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                        <button type="button" onclick="findAddress()" class="shrink-0 px-3 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-semibold">Найти</button>
+                    </div>
+                    <div id="addrResults" class="mt-2 space-y-1"></div>
+                    <p id="addrErr" class="text-xs text-rose-400 mt-1"></p>
+                    <p class="text-[11px] text-slate-500 mt-1">Координаты определяются автоматически. «Найти» позволяет проверить адрес до отправки.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Описание проблемы</label>
+                    <textarea id="reportDesc" rows="3" required maxlength="1500" placeholder="Опишите подробности нарушения..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Фото</label>
+                    <input type="file" id="reportPhotoFile" accept="image/*" class="w-full text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200">
+                    <img id="reportPreview" class="hidden mt-2 w-full h-32 object-cover rounded-lg border border-slate-700" alt="">
+                </div>
+                <div class="pt-2 flex items-center justify-end space-x-3 border-t border-slate-800">
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-semibold transition">Отмена</button>
+                    <button type="submit" id="reportSubmit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-lg shadow-emerald-900/30 transition disabled:opacity-50">Отправить</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
+    <script src="model.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
