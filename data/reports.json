@@ -38,5 +38,15 @@
   "lng": 84.2802868,
   "photo": "data/photos/mvzypq2bqnh8.jpg",
   "t": 1793666485811
+ },
+ {
+  "id": "mw028fyts0kz",
+  "category": "dump",
+  "address": "ул .солнечная 4",
+  "description": "переполненые баки",
+  "lat": 49.7145652,
+  "lng": 84.2523614,
+  "photo": null,
+  "t": 1793672398037
  }
 ]
