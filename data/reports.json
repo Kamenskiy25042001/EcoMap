@@ -28,5 +28,15 @@
   "lng": 84.2583699,
   "photo": "data/photos/mvzyofoupnj8.jpg",
   "t": 1793666425710
+ },
+ {
+  "id": "mvzypq2bqnh8",
+  "category": "dump",
+  "address": "Первомайская 22",
+  "description": "Строительный мусор возле баков",
+  "lat": 49.7225563,
+  "lng": 84.2802868,
+  "photo": "data/photos/mvzypq2bqnh8.jpg",
+  "t": 1793666485811
  }
 ]
